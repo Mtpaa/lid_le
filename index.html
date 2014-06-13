@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+	<title>Test2 JQuery, Leaflet Drag & menus</title>
+	<!--JQuery-->
+	<link rel="stylesheet" href="jquerymobil/themes/test_m.min.css" />
+	<link rel="stylesheet" href="jquerymobil/themes/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile.structure-1.4.2.min.css" />
+	<!--<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> -->
+	<script src ="jqueryui/js/jquery-1.10.2.js"></script> <!-- Drag-->
+	<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+	<script src ="jqueryui/js/jqueryui.js"></script> <!--Drag-->
+	<!--Leaflet-->
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+	<!--Mapbox -->
+	<!-- <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script> -->
+	<!--<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet' /> -->
+	<!--GeoJOSN(External File) -->
+	<!--<script src = "paths.geojson"  type = "text/javascript"></script> -->
+	
+	<style type="text/css">
+
+body {
+		padding: 0;
+		margin:0;
+		
+	}
+	html, body, #map, #compass{
+				height:100%
+			
+		}
+
+#compass {
+		position : absolute;
+		right: 35%;
+		top: 10%;
+		height: 30%;
+		width: 25%;
+		}
+#geolocb {
+		position: absolute;
+		left :1%;
+		bottom: 0%;
+		height:5%;
+		width:10%;
+		}
+#daRoutzb {					<!--There is no way to change the position of a 'selectmenu' -->
+		color: black;
+		position: absolute;
+		left :1%;
+		bottom: 0%;
+		height:5%;
+		width:10%;
+		}
+#compOnOff {
+		
+		position: absolute;
+		left :11%;
+		bottom: 0%;
+		height:5%;
+		width:10%;
+		}
+#testknopf {
+		
+		position: absolute;
+		left :21%;
+		bottom: 0%;
+		height:5%;
+		width:10%;
+		}
+
+		
+		
+
+	</style>
+</head>
+
+<body onload="comp()";>
+	<div id="map" style="width: 600px; height: 400px; border: 1.2em solid #000;"></div>
+	<div id="compass" style="display:none"; >  <img id="compass" src="compass.png"> </div>
+	<!-- *********** Icon******************** -->
+<script>
+		var ownIcon = L.icon({
+			iconUrl:'marker.png',
+			
+			iconSize:     [38, 95], // size of the icon [38, 95]
+			//shadowSize:   [50, 64], // size of the shadow
+			iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+			//shadowAnchor: [4, 62],  // the same for the shadow
+			//popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+</script>
+	<!--*************************************-->
+	<!--********* JQUERY THEMA **************-->
+<script>// Kompass Button action
+				function onoff(){
+				currentvalue = document.getElementById('compOnOff').value;
+				if (currentvalue == "Off"){
+					document.getElementById("compOnOff").value = "On";
+					document.getElementById("compass").style = "display:show";
+					//alert(document.getElementById('compOnOff').value);
+				}else{
+					document.getElementById("compOnOff").value = "Off";
+					document.getElementById("compass").style = "display:none";
+					//alert(document.getElementById('compOnOff').value);
+					}
+				}
+			
+			</script>
+	<!--*************************************-->		
+	<!--**************Routenloading********* -->
+<script> 
+	
+/* ********************************************************
+Problem, wenn nicht als erstes 'Route1' geklickt wird.!!!!
+*********************************************************/
+var route1;
+var route2;
+var route3;
+var route4;
+
+function loadr1() {
+			$.getJSON("paths.geojson", 
+			function(paths) {
+			 route1 = L.geoJson(paths)
+			 route1.addTo(map);
+			} 
+		);
+	}
+function loadr2() {
+			$.getJSON("routeII.geojson",
+			function(routeII) {
+			 route2 = L.geoJson(routeII)
+			 route2.addTo(map);
+			}
+		);
+	}
+function loadr3() {
+			$.getJSON("routeIII.geojson",
+			function(routeIII) {
+			 route3 = L.geoJson(routeIII)
+			 route3.addTo(map);
+			}
+		);
+	}
+
+function loadr4() {
+			$.getJSON("routeIV.geojson",
+			function(routeIV) {
+			 route4 = L.geoJson(routeIV)
+			 route4.addTo(map);
+			}
+		);
+    }
+	
+function clearRoute1(){
+		map.removeLayer(route1);
+	}
+function clearRoute2() {
+		map.removeLayer(route2);
+	}
+function clearRoute3() {
+		map.removeLayer(route3);
+	}
+function clearRoute4() {
+		map.removeLayer(route4);
+	}
+	
+	</script>
+	<!--************************************ -->
+	<!--***********Select da RoutzZ********* -->
+<script>
+
+		
+		function routeChange(sel) {
+			var value = sel.value;
+
+			switch (value){
+			case "0":
+				clearRoute1();
+				clearRoute2();
+				clearRoute3();
+				clearRoute4();
+				break;
+			case "1":
+				
+				loadr1();
+				clearRoute2();
+				clearRoute3();
+				clearRoute4();
+				break;
+			case "2":
+				
+				loadr2();
+				clearRoute1();
+				clearRoute3();
+				clearRoute4();
+				break;
+			case "3":
+				
+				loadr3();
+				clearRoute1();
+				clearRoute2();
+				clearRoute4();
+				break;
+			case "4":
+				
+				loadr4();
+				clearRoute1();
+				clearRoute2();
+				clearRoute3();
+				break;
+			}
+			
+			
+			/*if (value == "1")
+				{test();}
+			if (value == "2")
+				{alert("Route 2");}
+			if (value == "3")
+				{alert("route3");}
+			if (value == "4")
+				{alert("Route4");}
+			*/	
+		}					
+	<!--************************************* -->
+</script>
+	<!--******2Buttons und die Auswahl ****** -->
+			<button id="compOnOff"  value= "Off" onclick="onoff();"> Kompass </button>
+			<button id="geolocb" onclick="getLocation();">Geolocation</button>
+			
+			<select id="daRoutzb" data-native-menu="false" onchange = "routeChange(this);">
+				<option id="kR" value="0">keine</option>
+				<option id="R1" value="1">Route 1</option>
+				<option id="R2" value="2">Route 2</option>
+				<option id="R3"	value="3">Route 3</option>
+				<option id="R4"	value="4">Route 4</option> 
+			</select>
+			
+			
+	<!-- **********************************-->
+	
+	
+	
+	<!-- ******* MAP STUFF *****************-->
+<script>
+/*var map = new L.Map("map",{
+	center: new L.LatLng( 51.348002, 12.373036),
+	zoom: 14,
+	});
+	
+	var TopoLayer = L.tileLayer('file:///J:/Desktop/__Website/eso/{z}/{x}/{y}.png', {maxZoom:18
+	map.addLayer(TopoLayer);
+	}
+var map = L.map('map', 'eso/{z}/{x}/{y}.png',{
+		attribution:'Mappy =)',
+		tms: true,
+		})
+		
+	.setView([0, 0], 13);
+	*/ 
+	/*var map = L.mapbox.map('map', 'examples.map-i875kd35')
+    .setView([51.340067, 12.374409], 9);
+	*/
+	var ownlayer = L.tileLayer('eso/{z}/{x}/{y}.png', {
+	maxZoom: 16,
+	attribution: 'LiD Leipzig',
+	//tms: true <- muss raus sonst, werden die Kacheln in einer falschen Anordnung gesetzt  
+	continuousWorld: 'false'
+	//projection: 'hier noch unklar ob überhaupt benötigt
+	});
+	
+	var map = new L.map ('map', {
+		
+		center: [51.342426, 12.369602],
+		minZoom: 12,
+		maxZoom: 16,
+		zoom: 13,
+		layers:[ownlayer]
+		}
+	);
+	
+	var SW = new L.LatLng (51.217372, 12.217057);
+	var NE = new L.LatLng(51.453262, 12.553513);
+	
+	var bounds = new L.LatLngBounds(SW,NE);
+	map.setMaxBounds(bounds);
+	
+
+</script>
+	<!--************************************ -->
+	
+	<!-- *************GeoJOSN+MENÜ********* -->
+	 <button id="testknopf"  value= "Off" onclick="test();"> Testknopf </button>
+<script>
+		
+		//******************************************************************************************************
+	/*	//This is the god damn right code to add an external Geojson file(without an src link in the header) -->
+		$.getJSON("paths.geojson", function(paths) {
+		//Jquery.geoJSON("url"[,data][,success(data, textStatus, jqXHR)])
+			L.geoJson(paths).addTo(map);
+		 } );	*/
+		//******************************************************************************************************
+		  
+		 
+		/* 
+		 //...Leaflet Menü BAUSTELLE!
+		
+		 var RouteOne = L.layerGroup([paths]);
+		  var exk ={	
+				"Route_1" :RouteOne
+		  };
+		
+		//*******Layer Control Menu ***
+		LayerControl = L.control.layers(null, exk, 
+			/*Options*/
+	/*		{position: 'bottomright',
+			collapsed : false	,
+			autoZIndex: true}
+			);
+	LayerControl.addTo(map);
+	*/
+		//***********************************
+	
+		
+</script>
+	<!--************************************ -->
+	<!-- *************Compass*************** -->
+<script>
+	function comp() {
+        var compass = document.getElementById('compass');
+        if(window.DeviceOrientationEvent) {
+ 
+          window.addEventListener('deviceorientation', function(event) {
+                var alpha;
+                //Check for iOS property
+                if(event.webkitCompassHeading) {
+                  alpha = event.webkitCompassHeading;
+                  //Rotation is reversed for iOS
+                  compass.style.WebkitTransform = 'rotate(-' + alpha + 'deg)';
+                }
+                //non iOS
+                else {
+                  alpha = event.alpha;
+                  webkitAlpha = alpha;
+                  if(!window.chrome) {
+                    //Assume Android stock (this is crude, but good enough for our example) and apply offset
+                    webkitAlpha = alpha-270;
+                  }
+                }
+ 
+                compass.style.Transform = 'rotate(' + alpha + 'deg)';
+                compass.style.WebkitTransform = 'rotate('+ webkitAlpha + 'deg)';
+                //Rotation is reversed for FF
+                compass.style.MozTransform = 'rotate(-' + alpha + 'deg)'; 
+              }, false);
+        }
+      }
+</script>
+	<!--************************************ -->
+	<!--********** Draggable ****************-->
+<script> 
+/*	$(function() {
+		$( "#map" ).draggable();
+	});
+*/
+	$(function() {
+		$( "#compass" ).draggable();
+	});
+</script>
+	<!-- ************************************-->
+	<!--********** Geolocation***************-->
+<script>
+var x = document.getElementById("geolocb");
+var lat, lon , pos;
+	function getLocation()
+	{
+		if (navigator.geolocation)
+		{
+		navigator.geolocation.getCurrentPosition(showPosition);
+		}
+		else
+		{
+		x.innerHTML = "Geolocation is not supported by this browser.";
+		}
+	}
+	function showPosition(position)
+	{
+		//x.innerHTML = "Latttttitude: " + position.coords.latitude +"<br>Longitude: " + position.coords.longitude;
+		alert("Latitude: " + position.coords.latitude +"<br>Longitude: " + position.coords.longitude);
+				
+		lat = position.coords.latitude;
+		lon = position.coords.longitude;
+				
+		var marker = L.marker([lat,lon], {icon: ownIcon}).addTo(map);
+  
+	}
+	
+</script>
+	<!--*************************************-->
+
+</body>
+</html>
